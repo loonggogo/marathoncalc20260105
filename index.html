@@ -3,74 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>马拉松配速计算器</title>
+    <title>专业马拉松配速助手</title>
     <style>
-        :root { --primary-color: #2563eb; --bg-color: #f8fafc; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg-color); display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { color: #1e293b; text-align: center; margin-bottom: 1.5rem; }
-        .input-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #475569; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        .result-box { margin-top: 1.5rem; padding: 1rem; background: #eff6ff; border-radius: 8px; border-left: 4px solid var(--primary-color); }
-        .result-item { margin: 5px 0; color: #1e3a8a; font-size: 1.1rem; }
-        .result-item b { font-size: 1.2rem; }
+        :root { --primary: #2563eb; --secondary: #10b981; --bg: #f1f5f9; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); padding: 15px; display: flex; justify-content: center; }
+        .container { background: white; width: 100%; max-width: 500px; padding: 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: #1e293b; margin-bottom: 1.5rem; }
+        .input-card { background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0; }
+        label { display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .time-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .result-main { background: var(--primary); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem; }
+        .result-main div { font-size: 0.9rem; opacity: 0.9; }
+        .result-main strong { font-size: 2.2rem; display: block; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th { text-align: left; color: #64748b; padding: 8px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        .highlight { font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>🏃 配速计算器</h2>
+<div class="container">
+    <h2>🏃 马拉松配速助手</h2>
     
-    <div class="input-group">
-        <label>选择距离</label>
+    <div class="input-card">
+        <label>设定你的目标距离</label>
         <select id="distance">
             <option value="42195">全程马拉松 (42.195km)</option>
             <option value="21097.5">半程马拉松 (21.0975km)</option>
             <option value="10000">10 公里</option>
             <option value="5000">5 公里</option>
         </select>
-    </div>
-
-    <div class="input-group">
-        <label>目标时间 (时:分:秒)</label>
-        <div style="display: flex; gap: 5px;">
-            <input type="number" id="hh" placeholder="时" min="0" value="3">
-            <input type="number" id="mm" placeholder="分" min="0" max="59" value="30">
-            <input type="number" id="ss" placeholder="秒" min="0" max="59" value="00">
+        <label style="margin-top:15px">设定目标完成时间</label>
+        <div class="time-inputs">
+            <input type="number" id="hh" placeholder="时" value="4">
+            <input type="number" id="mm" placeholder="分" value="00">
+            <input type="number" id="ss" placeholder="秒" value="00">
         </div>
     </div>
 
-    <div class="result-box">
-        <div class="result-item">每公里配速: <b id="pace">--:--</b></div>
-        <div class="result-item">平均时速: <b id="speed">--</b> km/h</div>
+    <div class="result-main">
+        <div>要求的平均配速</div>
+        <strong id="paceDisplay">--:--</strong>
+        <span id="speedDisplay" style="font-size: 0.8rem;">时速: -- km/h</span>
     </div>
+
+    <label>预计分段成绩 (Split Times)</label>
+    <table>
+        <thead>
+            <tr><th>里程</th><th>时间</th><th>配速</th></tr>
+        </thead>
+        <tbody id="splitsTable">
+            </tbody>
+    </table>
 </div>
 
 <script>
-    const distInput = document.getElementById('distance');
-    const hh = document.getElementById('hh');
-    const mm = document.getElementById('mm');
-    const ss = document.getElementById('ss');
-
-    function calculate() {
-        const totalSeconds = (parseInt(hh.value) || 0) * 3600 + (parseInt(mm.value) || 0) * 60 + (parseInt(ss.value) || 0);
-        const distanceKm = parseFloat(distInput.value) / 1000;
-
-        if (totalSeconds > 0) {
-            // 计算配速 (秒/公里)
-            const pacePerKm = totalSeconds / distanceKm;
-            const pMin = Math.floor(pacePerKm / 60);
-            const pSec = Math.round(pacePerKm % 60);
-            document.getElementById('pace').innerText = `${pMin}'${pSec.toString().padStart(2, '0')}"`;
-            
-            // 计算时速
-            const kmh = (distanceKm / (totalSeconds / 3600)).toFixed(2);
-            document.getElementById('speed').innerText = kmh;
-        }
+    const inputs = ['distance', 'hh', 'mm', 'ss'].map(id => document.getElementById(id));
+    
+    function formatTime(totalSeconds) {
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = Math.round(totalSeconds % 60);
+        return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
     }
 
-    [distInput, hh, mm, ss].forEach(el => el.addEventListener('input', calculate));
+    function calculate() {
+        const dist = parseFloat(inputs[0].value);
+        const totalSec = (parseInt(inputs[1].value)||0)*3600 + (parseInt(inputs[2].value)||0)*60 + (parseInt(inputs[3].value)||0);
+        
+        if (totalSec <= 0) return;
+
+        const pacePerKm = totalSec / (dist / 1000);
+        const pMin = Math.floor(pacePerKm / 60);
+        const pSec = Math.round(pacePerKm % 60);
+        const paceStr = `${pMin}'${pSec.toString().padStart(2, '0')}"`;
+        
+        document.getElementById('paceDisplay').innerText = paceStr;
+        document.getElementById('speedDisplay').innerText = `平均时速: ${( (dist/1000) / (totalSec/3600) ).toFixed(2)} km/h`;
+
+        // 生成分段表
+        const checkpoints = [5000, 10000, 15000, 21097.5, 30000, 35000, 42195];
+        let html = '';
+        checkpoints.forEach(cp => {
+            if (cp <= dist || (dist > 21000 && cp <= 42195)) {
+                const cpTime = (totalSec * (cp / dist));
+                const label = cp === 21097.5 ? "半马" : cp === 42195 ? "全马" : (cp/1000) + "k";
+                html += `<tr><td>${label}</td><td class="highlight">${formatTime(cpTime)}</td><td>${paceStr}/km</td></tr>`;
+            }
+        });
+        document.getElementById('splitsTable').innerHTML = html;
+    }
+
+    inputs.forEach(el => el.addEventListener('input', calculate));
     calculate();
 </script>
 
