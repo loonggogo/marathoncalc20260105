@@ -3,115 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精英跑者战术助手</title>
+    <title>专业马拉松配速助手</title>
     <style>
-        :root { --primary: #ef4444; --dark: #1e293b; --light: #f8fafc; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--light); padding: 15px; color: var(--dark); }
-        .container { width: 100%; max-width: 550px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: var(--dark); color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; }
-        .input-box { background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .main-stat { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        .main-stat h1 { margin: 5px 0; font-size: 2.5rem; }
-        .section-title { font-weight: bold; border-left: 4px solid var(--primary); padding-left: 10px; margin: 20px 0 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th { text-align: left; background: #f8fafc; padding: 10px; }
-        td { padding: 10px; border-bottom: 1px solid #f1f5f9; }
-        .tips-card { background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 12px; font-size: 0.9rem; line-height: 1.6; }
-        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        :root { --primary: #2563eb; --secondary: #10b981; --bg: #f1f5f9; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); padding: 15px; display: flex; justify-content: center; }
+        .container { background: white; width: 100%; max-width: 500px; padding: 1.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: #1e293b; margin-bottom: 1.5rem; }
+        .input-card { background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0; }
+        label { display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .time-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .result-main { background: var(--primary); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem; }
+        .result-main div { font-size: 0.9rem; opacity: 0.9; }
+        .result-main strong { font-size: 2.2rem; display: block; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th { text-align: left; color: #64748b; padding: 8px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        .highlight { font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h2>🚀 精英跑者战术助手</h2>
-        <p style="font-size: 0.8rem; opacity: 0.8;">科学配速 · 精准补给 · 赛道分析</p>
+    <h2>🏃 马拉松配速助手</h2>
+    
+    <div class="input-card">
+        <label>设定你的目标距离</label>
+        <select id="distance">
+            <option value="42195">全程马拉松 (42.195km)</option>
+            <option value="21097.5">半程马拉松 (21.0975km)</option>
+            <option value="10000">10 公里</option>
+            <option value="5000">5 公里</option>
+        </select>
+        <label style="margin-top:15px">设定目标完成时间</label>
+        <div class="time-inputs">
+            <input type="number" id="hh" placeholder="时" value="4">
+            <input type="number" id="mm" placeholder="分" value="00">
+            <input type="number" id="ss" placeholder="秒" value="00">
+        </div>
     </div>
 
-    <div class="content">
-        <div class="input-box">
-            <label>目标赛事距离</label>
-            <select id="dist">
-                <option value="42195">全程马拉松 (42.195km)</option>
-                <option value="21097.5">半程马拉松 (21.0975km)</option>
-                <option value="10000">10 公里</option>
-            </select>
-            <label style="display:block; margin-top:15px;">目标时间</label>
-            <div class="grid-3">
-                <input type="number" id="h" value="3">
-                <input type="number" id="m" value="30">
-                <input type="number" id="s" value="00">
-            </div>
-        </div>
-
-        <div class="main-stat">
-            <div>平均目标配速</div>
-            <h1 id="paceDisplay">--'--"</h1>
-            <div class="tag" id="levelTag">计算中...</div>
-        </div>
-
-        <div class="section-title">⏱️ 关键分段表</div>
-        <table>
-            <thead><tr><th>里程</th><th>累计时间</th><th>配速</th></tr></thead>
-            <tbody id="splits"></tbody>
-        </table>
-
-        <div class="section-title">🥤 补给策略建议</div>
-        <div class="tips-card" id="nutrition">
-            </div>
+    <div class="result-main">
+        <div>要求的平均配速</div>
+        <strong id="paceDisplay">--:--</strong>
+        <span id="speedDisplay" style="font-size: 0.8rem;">时速: -- km/h</span>
     </div>
+
+    <label>预计分段成绩 (Split Times)</label>
+    <table>
+        <thead>
+            <tr><th>里程</th><th>时间</th><th>配速</th></tr>
+        </thead>
+        <tbody id="splitsTable">
+            </tbody>
+    </table>
 </div>
 
 <script>
-    const el = (id) => document.getElementById(id);
-    const inputs = ['dist', 'h', 'm', 's'];
-
-    function getLevel(paceSec, dist) {
-        if (dist < 40000) return "日常训练模式";
-        if (paceSec <= 180) return "大神级：国家一级跑者";
-        if (paceSec <= 210) return "精英级：破3选手";
-        if (paceSec <= 270) return "进阶级：大众一级";
-        if (paceSec <= 330) return "运动达人：大众二级";
-        return "健康跑者：完赛挑战";
+    const inputs = ['distance', 'hh', 'mm', 'ss'].map(id => document.getElementById(id));
+    
+    function formatTime(totalSeconds) {
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = Math.round(totalSeconds % 60);
+        return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
     }
 
-    function formatTime(sec) {
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = Math.round(sec % 60);
-        return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    }
-
-    function update() {
-        const d = parseFloat(el('dist').value);
-        const totalSec = (parseInt(el('h').value)||0)*3600 + (parseInt(el('m').value)||0)*60 + (parseInt(el('s').value)||0);
+    function calculate() {
+        const dist = parseFloat(inputs[0].value);
+        const totalSec = (parseInt(inputs[1].value)||0)*3600 + (parseInt(inputs[2].value)||0)*60 + (parseInt(inputs[3].value)||0);
         
-        const paceSec = totalSec / (d / 1000);
-        const pMin = Math.floor(paceSec / 60);
-        const pSec = Math.round(paceSec % 60);
+        if (totalSec <= 0) return;
+
+        const pacePerKm = totalSec / (dist / 1000);
+        const pMin = Math.floor(pacePerKm / 60);
+        const pSec = Math.round(pacePerKm % 60);
         const paceStr = `${pMin}'${pSec.toString().padStart(2, '0')}"`;
+        
+        document.getElementById('paceDisplay').innerText = paceStr;
+        document.getElementById('speedDisplay').innerText = `平均时速: ${( (dist/1000) / (totalSec/3600) ).toFixed(2)} km/h`;
 
-        el('paceDisplay').innerText = paceStr;
-        el('levelTag').innerText = getLevel(paceSec, d);
-
-        // 分段表
-        let splitsHtml = '';
-        const pts = d > 30000 ? [5000, 10000, 20000, 21097.5, 30000, 35000, 40000, 42195] : [2000, 5000, 7000, 10000, 15000, 21097.5];
-        pts.forEach(p => {
-            if (p <= d) {
-                const time = totalSec * (p / d);
-                const label = p === 21097.5 ? "半马" : p === 42195 ? "终点" : (p/1000)+"K";
-                splitsHtml += `<tr><td>${label}</td><td><b>${formatTime(time)}</b></td><td>${paceStr}</td></tr>`;
+        // 生成分段表
+        const checkpoints = [5000, 10000, 15000, 21097.5, 30000, 35000, 42195];
+        let html = '';
+        checkpoints.forEach(cp => {
+            if (cp <= dist || (dist > 21000 && cp <= 42195)) {
+                const cpTime = (totalSec * (cp / dist));
+                const label = cp === 21097.5 ? "半马" : cp === 42195 ? "全马" : (cp/1000) + "k";
+                html += `<tr><td>${label}</td><td class="highlight">${formatTime(cpTime)}</td><td>${paceStr}/km</td></tr>`;
             }
         });
-        el('splits').innerHTML = splitsHtml;
+        document.getElementById('splitsTable').innerHTML = html;
+    }
 
-        // 补给建议
-        let nutrition = `
-            <b>补水：</b>每 5km 即使不渴也建议喝 2-3 口水。<br>
-            <b>能量：</b>预计消耗 ${(d/1000*60).toFixed(0)} 大卡。`;
-        if (d > 20000) {
-            nutrition
+    inputs.forEach(el => el.addEventListener('input', calculate));
+    calculate();
+</script>
+
+</body>
+</html>
